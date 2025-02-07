@@ -1,74 +1,49 @@
 import math
 from google.colab import output
 
+# RSA ENKRIPSI & DEKRIPSI
+p = 47
+q = 71
+n = p * q
+toilent_euler = (p-1) * (q-1)
+
+# Public Key
 while True:
-  p = 47
-  q = 71
-  n = p * q
-  toilent_euler = (p-1)*(q-1)
+    output.clear()
+    e = int(input("Masukan Kunci Publik (Dengan Syarat Nilai GCD = 1) : "))
+    GCD = math.gcd(toilent_euler, e)
 
-  # Menentukan Kunci Publik
-  output.clear()
-  e = int(input("Masukan Kunci Publik (Dengan Syarat Nilai GCD = 1) : "))
-  GCD = math.gcd(toilent_euler,e)
-  if GCD == 1:
-    # Untuk Menemukan Nilai Toilent Euler N / Kunci Private
-    for a in range(200):
-      d = float((toilent_euler*a+1)/e)
-      if d%1 == 0:
-        d_fix = int(d)
-    private = d_fix
-    answer_list = []
-    break
+    if GCD == 1:
+        for a in range(1, 200): # Hasil harus 1 (contoh : 27, 29, 31, dst) [Jangan input PK 1/Jika PK 1 maka enkripsi akan sama dengan dekripsi!]
+            d = (toilent_euler * a + 1) / e
+            if d.is_integer():
+                d_fix = int(d)
+                break
+        private = d_fix
+        break
+    else:
+        print("\nError! Syarat GCD Nilai Anda Lebih Dari 1\nSilahkan Ulangi!")
+        print("\nNILAI GCD ANDA! = ", GCD)
+        input("\nEnter untuk lanjut...")
 
-  else:
-    print("\nError! Syarat GCD Nilai Anda Lebih Dari 1\nSilahkan Ulangi!")
-    print("\nNILAI GCD ANDA! = ",GCD)
-    ulangi_lagi = input("\nEnter untuk lanjut...")
-    True
-
-# Input Plainteks Dengan Huruf Kapital Semua
+# Input Plaintext
 output.clear()
 plainteks = input("Plainteks (Dengan Huruf Kapital Semua) : \n")
-ascii = [ord(c) for c in plainteks]
-concat = ''.join(map(str,ascii))
-panjang = len(concat)
-print("\nENKRIPSI :")
-for i in range(panjang):
-  if i%3 == 0:
-    a_tambah = i + 3
-    hasil = int(concat[i:a_tambah])
-    hitung = hasil**e%n
-    print(hitung,end='')
 
-print("\n")
+# Convert ke ASCII
+ascii_values = [ord(c) for c in plainteks]
+
+# Enkripsi
+print("\nENKRIPSI :")
+cipher_text = [(char**e) % n for char in ascii_values]
+print(" ".join(map(str, cipher_text)))
 
 # Dekripsi
-print("DEKRIPSI :")
-for a in range(panjang):
-  if a%3 == 0:
-    a_tambah = a + 3
-    hasil_ = int(concat[a:a_tambah])
-    hitung_ = hasil_**e%n
-    answer_ = hitung_**private%n
-    print(answer_,end='')
+print("\nDEKRIPSI :")
+decrypted_ascii = [(char**private) % n for char in cipher_text]
+print(" ".join(map(str, decrypted_ascii)))
 
-print("\n")
-
-# Plainteks Dekripsi Kembali
-print("PLAIN TEKS (DEKRIPSI KEMBALI) :")
-for a in range(panjang):
-  if a%3 == 0:
-    a_tambah = a + 3
-    hasil_ = int(concat[a:a_tambah])
-    hitung_ = hasil_**e%n
-    answer_ = hitung_**private%n
-    answer_list.append(answer_)
-
-concat_2 = ''.join(map(str, answer_list))
-panjang_2 = len(concat_2)
-for z in range(panjang_2):
-  if z%2 == 0:
-    z_tambah = z + 2
-    hasil_2 = int(concat_2[z:z_tambah])
-    print(chr(hasil_2),end='')
+# Kembalikan ke Plain Text
+print("\nPLAIN TEKS (DEKRIPSI KEMBALI) :")
+decrypted_text = "".join(chr(char) for char in decrypted_ascii)
+print(decrypted_text)
